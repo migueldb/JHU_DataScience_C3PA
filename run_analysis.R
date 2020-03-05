@@ -1,3 +1,5 @@
+################################################################################
+##
 ## This script is part of a programming assignment submission
 ## John Hopkins University and Coursera
 ## Specialization: Data Science
@@ -9,9 +11,8 @@
 ## -data-course-project
 ## Student: Miguel Duarte B.
 ## email: duartemj@outlook.com
-
-## rankall - r
 ##
+################################################################################
 
 ## Cleaning the environment first
 
@@ -21,10 +22,10 @@ rm(list=ls(all=TRUE))
 ## necessary
 
 ## To set a separate Raw file inside the work directory uncoment the 
-## #  "Raw" line and add a comma to the end of the getwd() line
+## #  "Raw" line and the comma after getwd() line
 
 rawDir <- file.path(
-    getwd()
+    getwd()#,
 #    "Raw"
     )
 
@@ -130,6 +131,12 @@ features <- gsub("^t", "time", features)
 features <- gsub("^f", "fastfourier", features )
 features <- gsub("std$", "standarddeviation", features)
 
+## Column labels containig "bandsEnergy" are repeated.  The next step creates
+## unique labels
+features <- make.unique(features)
+
+
+
 ## Create an activity labels tibble
 activityLabels <- read_delim(
     file.path(
@@ -147,8 +154,6 @@ activityLabels <- read_delim(
 
 ## Read the test data and change the column names using the data stored in
 ## features
-## NOTE: There are multiple warnings because the column names containing
-## "bandsEnergy" repeat themselves.  They will be removed on the next step
 test <- read_delim(
     file.path(
         rawDir,
@@ -171,11 +176,11 @@ test <- test %>%
     ## Select the column names containing "mean" and "standarddeviation"
     select(
         matches(
-            "mean$|mean[xyz]|standarddeviation$|standarddeviation[xyz]",
+            "^[ft]*mean$|mean[xyz]|standarddeviation$|standarddeviation[xyz]",
             perl = TRUE,
         )
     ) %>%
-    ## Add the subject test as a factor column
+    ## Add the subject as a factor column
     mutate(
         "subject" = pull(
             read_delim(
@@ -192,7 +197,7 @@ test <- test %>%
                 )
             )
         ) %>%
-    ## Add the test labels as a number column
+    ## Add the activity labels as a number column
     mutate(
         "activitylabel" = pull(
             read_delim(
@@ -248,11 +253,11 @@ train <- train %>%
     ## Select the column names containing "mean" and "standarddeviation"
     select(
         matches(
-                "mean$|mean[xyz]|standarddeviation$|standarddeviation[xyz]",
+                "^[ft]*mean$|mean[xyz]|standarddeviation$|standarddeviation[xyz]",
             perl = TRUE,
         )
     ) %>%
-    ## Add the subject test as a factor column
+    ## Add the subject as a factor column
     mutate(
         "subject" = pull(
             read_delim(
@@ -269,7 +274,7 @@ train <- train %>%
             )
         )
     ) %>%
-    ## Add the test labels as a number column
+    ## Add the activity labels as a number column
     mutate(
         "activitylabel" = pull(
             read_delim(
